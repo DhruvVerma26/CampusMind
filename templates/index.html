@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusMind - College AI Assistant</title>
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom stylesheet -->
+    <link href="/static/css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation Drawer -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>CampusMind</span>
+                </div>
+            </div>
+            
+            <button class="new-chat-btn" onclick="createNewChat()">
+                <i class="fas fa-plus"></i> New Chat
+            </button>
+            
+            <!-- Dynamic Chat List -->
+            <div class="chat-history" id="chat-history">
+                <!-- Rendered dynamically via JS -->
+            </div>
+            
+            <div class="sidebar-footer">
+                <a href="/admin" class="sidebar-action-item">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Professor Portal</span>
+                </a>
+                <div class="sidebar-action-item" id="settings-btn">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Preferences</span>
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); padding: 5px 10px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+                    <span>Model: Llama 3.3 (RAG)</span>
+                    <span class="status-dot"></span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="main-content">
+            <!-- Chat Header -->
+            <header class="chat-header">
+                <div class="header-left">
+                    <button id="toggle-sidebar" class="toggle-sidebar-btn" title="Toggle Sidebar">
+                        <i class="fas fa-outdent"></i>
+                    </button>
+                    <div class="bot-info">
+                        <div class="bot-avatar">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div class="bot-name-wrapper">
+                            <span class="bot-name">CampusMind</span>
+                            <div class="bot-status">
+                                <span class="status-dot"></span>
+                                <span>College AI Assistant (RAG)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <button class="header-btn" onclick="exportChat('markdown')" title="Export to Markdown">
+                        <i class="fab fa-markdown"></i> Export MD
+                    </button>
+                    <button class="header-btn" onclick="exportChat('json')" title="Export to JSON">
+                        <i class="fas fa-file-code"></i> Export JSON
+                    </button>
+                    <button class="header-btn" onclick="clearActiveChatHistory()" title="Clear Chat History">
+                        <i class="fas fa-trash-alt"></i> Clear
+                    </button>
+                </div>
+            </header>
+
+            <!-- Scrollable Message Body -->
+            <div id="chat-box">
+                <!-- Dynamic messages rendered here -->
+            </div>
+
+            <!-- Floating Footer Input Panel -->
+            <div class="input-panel-container">
+                <div class="input-panel-inner">
+                    
+                    <!-- Bouncing dots typing indicator -->
+                    <div id="typing-indicator" class="typing-indicator-wrapper">
+                        <div class="typing-bubble">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <span style="font-size: 12px; color: var(--text-secondary); margin-left: 5px;">CampusMind is searching files & formulating response...</span>
+                        </div>
+                    </div>
+
+                    <!-- Input Bar -->
+                    <div class="input-wrapper">
+                        <button id="mic-btn" class="input-action-btn mic-btn" onclick="toggleVoiceInput()" title="Dictate Message">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        
+                        <textarea id="user-input" placeholder="Ask CampusMind a question... (Shift + Enter for new line)" rows="1"></textarea>
+                        
+                        <button id="send-btn" class="input-action-btn send-btn" onclick="sendMessage()" title="Send Message">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="input-info-row">
+                        <span>CampusMind answers queries based on files uploaded by your professors.</span>
+                        <span>Ctrl+Enter to Send</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Preferences Modal Overlay -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="font-size: 20px; font-weight: 700;"><i class="fas fa-sliders-h" style="color: var(--accent-color); margin-right: 8px;"></i> Preferences</h2>
+                <button id="close-modal" class="modal-close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-row">
+                    <span class="setting-label">Interactions Palette Theme</span>
+                    <div class="theme-options">
+                        <button class="theme-btn" data-theme="dark" onclick="selectTheme('dark')">Obsidian Dark</button>
+                        <button class="theme-btn" data-theme="light" onclick="selectTheme('light')">Alabaster Light</button>
+                        <button class="theme-btn" data-theme="cyberpunk" onclick="selectTheme('cyberpunk')">Cyberpunk Neon</button>
+                    </div>
+                </div>
+                
+                <div class="setting-row" style="margin-top: 10px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                    <span class="setting-label">CampusMind System Details</span>
+                    <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-top: 5px;">
+                        This RAG chatbot allows students to query documents such as syllabi, calendars, exam schedules, and grading schemes. To manage documents, professors can access the <strong>Professor Portal</strong>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script loading -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

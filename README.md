@@ -17,6 +17,22 @@ An AI-powered college assistant that uses **Retrieval-Augmented Generation (RAG)
 
 ---
 
+## Screenshots
+
+### Chat Interface
+
+![Chat Interface](screenshots/student_portal.png)
+
+### Admin Dashboard
+
+![Admin Dashboard](screenshots/professor_portal.png)
+
+### Sample Response
+
+![Sample Response](screenshots/sample.png)
+
+---
+
 ## Tech Stack
 
 | Technology | Purpose |
